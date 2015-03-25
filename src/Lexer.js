@@ -28,7 +28,8 @@ function Token(text, data, position) {
 // "normal" types of tokens. These are tokens which can be matched by a simple
 // regex
 var mathNormals = [
-    /^[/|@.""`0-9a-zA-Z]/, // ords
+    /^[/|@.""`0-9a-zA-Zа-яА-Я]/, // ords
+   // /^[а-яА-Я]/, //cyrillics
     /^[*+-]/, // bins
     /^[=<>:]/, // rels
     /^[,;]/, // punctuation
@@ -41,7 +42,8 @@ var mathNormals = [
 // These are "normal" tokens like above, but should instead be parsed in text
 // mode.
 var textNormals = [
-    /^[a-zA-Z0-9`!@*()-=+\[\]'";:?\/.,]/, // ords
+    /^[a-zA-Zа-яА-Я0-9`!@*()-=+\[\]'";:?\/.,]/, // ords
+  //  /^[а-яА-Я]/, //cyrillics
     /^[{}]/, // grouping
     /^~/ // spacing
 ];
