@@ -249,7 +249,9 @@ var groupTypes = {
 
         // Here is where we defer to the inner group if it should handle
         // superscripts and subscripts itself.
+        // console.log("subsup", group, "opt", options);
         if (shouldHandleSupSub(group.value.base, options)) {
+            // console.log("sup1");
             return groupTypes[group.value.base.type](group, options, prev);
         }
 
@@ -257,13 +259,17 @@ var groupTypes = {
         var supmid, submid, sup, sub;
 
         if (group.value.sup) {
+            // console.log("sup2");
             sup = buildGroup(group.value.sup,
                     options.withStyle(options.style.sup()));
+            // console.log("supShow", sup);
             supmid = makeSpan(
                     [options.style.reset(), options.style.sup().cls()], [sup]);
+            // console.log("supmid", supmid);
         }
 
         if (group.value.sub) {
+            // console.log("sup3");
             sub = buildGroup(group.value.sub,
                     options.withStyle(options.style.sub()));
             submid = makeSpan(
@@ -273,9 +279,11 @@ var groupTypes = {
         // Rule 18a
         var supShift, subShift;
         if (isCharacterBox(group.value.base)) {
+            // console.log("sup4");
             supShift = 0;
             subShift = 0;
         } else {
+            // console.log("sup5");
             supShift = base.height - fontMetrics.metrics.supDrop;
             subShift = base.depth + fontMetrics.metrics.subDrop;
         }
@@ -283,10 +291,13 @@ var groupTypes = {
         // Rule 18c
         var minSupShift;
         if (options.style === Style.DISPLAY) {
+            // console.log("18c1");
             minSupShift = fontMetrics.metrics.sup1;
         } else if (options.style.cramped) {
+            // console.log("18c2");
             minSupShift = fontMetrics.metrics.sup3;
         } else {
+            // console.log("18c3");
             minSupShift = fontMetrics.metrics.sup2;
         }
 
@@ -318,9 +329,10 @@ var groupTypes = {
             }
         } else if (!group.value.sub) {
             // Rule 18c, d
+            // console.log("supNosub");
             supShift = Math.max(supShift, minSupShift,
                 sup.depth + 0.25 * fontMetrics.metrics.xHeight);
-
+            // console.log("supShift", supShift, minSupShift, sup.depth + 0.25 * fontMetrics.metrics.xHeight);
             supsub = buildCommon.makeVList([
                 {type: "elem", elem: supmid}
             ], "shift", -supShift, options);
@@ -751,6 +763,8 @@ var groupTypes = {
 
         // First, we do the same steps as in overline to build the inner group
         // and line
+        // console.log("makeNodesqrt", group);
+        // console.log("options", options);
         var inner = buildGroup(group.value.body,
                 options.withStyle(options.style.cramp()));
 
@@ -811,8 +825,27 @@ var groupTypes = {
                 {type: "kern", size: ruleWidth}
             ], "firstBaseline", null, options);
         }
+        if(!group.value.optional) {
+            return makeSpan(["sqrt", "mord"], [delim, body]);            
+        } else {
+            var optionInner = buildGroup(group.value.optional,
+                options.withStyle(options.style.sup()));
 
-        return makeSpan(["sqrt", "mord"], [delim, body]);
+            var optionInnerSpan;
+            optionInnerSpan = makeSpan(
+                    [options.style.reset(), options.style.sup().cls()], [optionInner]);
+
+            var toShift; //determines vertical shift
+            if (options.style === Style.DISPLAY) {
+                toShift = fontMetrics.metrics.sup1;
+            } else if (options.style.cramped) {            
+                toShift = fontMetrics.metrics.sup3;
+            } else {
+                toShift = fontMetrics.metrics.sup2;
+            }
+            var rootpower = buildCommon.makeVList([{type: "elem", elem: optionInnerSpan}],"shift", -toShift, options);
+            return makeSpan(["sqrt", "mord", "optional"], [rootpower, delim, body]); 
+        }
     },
 
     sizing: function(group, options, prev) {
@@ -1092,6 +1125,7 @@ var buildGroup = function(group, options, prev) {
 
     if (groupTypes[group.type]) {
         // Call the groupTypes function
+        // console.log("gtype", group.type);
         var groupNode = groupTypes[group.type](group, options, prev);
         var multiplier;
 

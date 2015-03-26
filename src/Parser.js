@@ -144,6 +144,7 @@ Parser.prototype.parseExpression = function(pos, mode, breakOnInfix, breakOnToke
         body.push(atom.result);
         pos = atom.position;
     }
+    // console.log("parseExpr", body, "m", mode, "p", pos);
     return new ParseResult(this.handleInfixNodes(body, mode), pos);
 };
 
@@ -237,7 +238,7 @@ Parser.prototype.parseAtom = function(pos, mode) {
     // The body of an atom is an implicit group, so that things like
     // \left(x\right)^2 work correctly.
     var base = this.parseImplicitGroup(pos, mode);
-
+    // console.log("parseAtombase", base);
     // In text mode, we don't have superscripts or subscripts
     if (mode === "text") {
         return base;
@@ -311,6 +312,7 @@ Parser.prototype.parseAtom = function(pos, mode) {
             currPos);
     } else {
         // Otherwise return the original body
+        // console.log("parseAtomBeforeReturn", base);
         return base;
     }
 };
@@ -409,10 +411,12 @@ Parser.prototype.parseImplicitGroup = function(pos, mode) {
  */
 Parser.prototype.parseFunction = function(pos, mode) {
     var baseGroup = this.parseGroup(pos, mode);
-
+    // console.log("base", baseGroup);
     if (baseGroup) {
         if (baseGroup.isFunction) {
+            // console.log("here");
             var func = baseGroup.result.result;
+            // console.log("func", func);
             var funcData = functions.funcs[func];
             if (mode === "text" && !funcData.allowedInText) {
                 throw new ParseError(
@@ -479,12 +483,13 @@ Parser.prototype.parseFunction = function(pos, mode) {
                 }
 
                 args.push(positions);
-
+                // console.log("aboveelse", this, "args", args);
                 result = functions.funcs[func].handler.apply(this, args);
             } else {
+                // console.log("inelse", this, "fun", func);
                 result = functions.funcs[func].handler.apply(this, [func]);
             }
-
+            // console.log("beforeReturn", result, "mode", mode);
             return new ParseResult(
                 new ParseNode(result.type, result, mode),
                 newPos);
