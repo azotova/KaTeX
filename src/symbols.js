@@ -2537,7 +2537,7 @@ for (var i = 0; i < textSymbols.length; i++) {
 }
 
 // All of these are textords in text mode, and mathords in math mode
-var letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+var letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZабвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
 for (var i = 0; i < letters.length; i++) {
     var ch = letters.charAt(i);
     symbols.math[ch] = {
