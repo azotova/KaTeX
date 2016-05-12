@@ -48,7 +48,7 @@ var tokenRegex = new RegExp(
     "---?" +                                          // special combinations
     "|[!-\\[\\]-\u2027\u202A-\uD7FF\uF900-\uFFFF]" +  // single codepoint
     "|[\uD800-\uDBFF][\uDC00-\uDFFF]" +               // surrogate pair
-    "|\\\\(?:[a-zA-Z]+|[^\uD800-\uDFFF])" +           // function name
+    "|\\\\(?:[a-zA-Zа-яА-Я]+|[^\uD800-\uDFFF])" +     // function name
     ")"
 );
 
