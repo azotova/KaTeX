@@ -1,5 +1,8 @@
 @import "fonts.less";
 
+// The mu unit is defined as 1/18 em
+@mu: 1.0/18.0em;
+
 .katex-display {
     display: block;
     margin: 1em 0;
@@ -7,6 +10,7 @@
 
     > .katex {
         display: inline-block;
+        text-align: initial;
     }
 }
 
@@ -14,6 +18,9 @@
     font: normal 1.21em KaTeX_Main;
     line-height: 1.2;
     white-space: nowrap;
+
+    // Protect elements inside .katex from inheriting text-indent.
+    text-indent: 0;
 
     .katex-html {
         // Making .katex inline-block allows line breaks before and after,
@@ -47,8 +54,42 @@
         font-style: italic;
     }
 
+    .mathbf {
+        font-family: KaTeX_Main;
+        font-weight: bold;
+    }
+
     .amsrm {
         font-family: KaTeX_AMS;
+    }
+
+    .mathbb {
+        font-family: KaTeX_AMS;
+    }
+
+    .mathcal {
+        font-family: KaTeX_Caligraphic;
+    }
+
+    .mathfrak {
+        font-family: KaTeX_Fraktur;
+    }
+
+    .mathtt {
+        font-family: KaTeX_Typewriter;
+    }
+
+    .mathscr {
+        font-family: KaTeX_Script;
+    }
+
+    .mathsf {
+        font-family: KaTeX_SansSerif;
+    }
+
+    .mainit {
+        font-family: KaTeX_Main;
+        font-style: italic;
     }
 
     // This value is also used in fontMetrics.js, if you change it make sure the
@@ -307,29 +348,27 @@
 
     .rule {
         display: inline-block;
-        border-style: solid;
+        border: solid 0;
         position: relative;
     }
 
-    .overline {
+    .overline .overline-line,
+    .underline .underline-line {
+        width: 100%;
 
-        .overline-line {
-            width: 100%;
+        &:before {
+            border-bottom-style: solid;
+            border-bottom-width: 1px;
+            content: "";
+            display: block;
+        }
 
-            &:before {
-                border-bottom-style: solid;
-                border-bottom-width: 1px;
-                content: "";
-                display: block;
-            }
-
-            &:after {
-                border-bottom-style: solid;
-                border-bottom-width: 0.04em;
-                content: "";
-                display: block;
-                margin-top: -1px;
-            }
+        &:after {
+            border-bottom-style: solid;
+            border-bottom-width: 0.04em;
+            content: "";
+            display: block;
+            margin-top: -1px;
         }
     }
 
@@ -355,6 +394,13 @@
                 display: block;
                 margin-top: -1px;
             }
+        }
+
+        > .root {
+            // These values are taken from the definition of `\r@@t`,
+            // `\mkern 5mu` and `\mkern -10mu`.
+            margin-left: 5*@mu;
+            margin-right: -10*@mu;
         }
     }
 
@@ -449,4 +495,29 @@
             left: 0.326em;
         }
     }
+
+    .mtable {
+        .vertical-separator {
+            display: inline-block;
+            margin: 0 -0.025em;
+            border-right: 0.05em solid black;
+        }
+
+        .arraycolsep {
+            display: inline-block;
+        }
+
+        .col-align-c > .vlist {
+            text-align: center;
+        }
+
+        .col-align-l > .vlist {
+            text-align: left;
+        }
+
+        .col-align-r > .vlist {
+            text-align: right;
+        }
+    }
+
 }

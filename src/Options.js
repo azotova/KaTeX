@@ -6,9 +6,9 @@
  */
 
 /**
- * This is the main options class. It contains the style, size, and color of the
- * current parse level. It also contains the style and size of the parent parse
- * level, so size changes can be handled efficiently.
+ * This is the main options class. It contains the style, size, color, and font
+ * of the current parse level. It also contains the style and size of the parent
+ * parse level, so size changes can be handled efficiently.
  *
  * Each of the `.with*` and `.reset` functions passes its current style and size
  * as the parentStyle and parentSize of the new options class, so parent
@@ -19,6 +19,7 @@ function Options(data) {
     this.color = data.color;
     this.size = data.size;
     this.phantom = data.phantom;
+    this.font = data.font;
 
     if (data.parentStyle === undefined) {
         this.parentStyle = data.style;
@@ -44,7 +45,8 @@ Options.prototype.extend = function(extension) {
         color: this.color,
         parentStyle: this.style,
         parentSize: this.size,
-        phantom: this.phantom
+        phantom: this.phantom,
+        font: this.font,
     };
 
     for (var key in extension) {
@@ -61,7 +63,7 @@ Options.prototype.extend = function(extension) {
  */
 Options.prototype.withStyle = function(style) {
     return this.extend({
-        style: style
+        style: style,
     });
 };
 
@@ -70,7 +72,7 @@ Options.prototype.withStyle = function(style) {
  */
 Options.prototype.withSize = function(size) {
     return this.extend({
-        size: size
+        size: size,
     });
 };
 
@@ -79,7 +81,7 @@ Options.prototype.withSize = function(size) {
  */
 Options.prototype.withColor = function(color) {
     return this.extend({
-        color: color
+        color: color,
     });
 };
 
@@ -88,7 +90,16 @@ Options.prototype.withColor = function(color) {
  */
 Options.prototype.withPhantom = function() {
     return this.extend({
-        phantom: true
+        phantom: true,
+    });
+};
+
+/**
+ * Create a new options objects with the give font.
+ */
+Options.prototype.withFont = function(font) {
+    return this.extend({
+        font: font,
     });
 };
 
@@ -111,7 +122,56 @@ var colorMap = {
     "katex-red": "#df0030",
     "katex-green": "#28ae7b",
     "katex-gray": "gray",
-    "katex-purple": "#9d38bd"
+    "katex-purple": "#9d38bd",
+    "katex-blueA": "#c7e9f1",
+    "katex-blueB": "#9cdceb",
+    "katex-blueC": "#58c4dd",
+    "katex-blueD": "#29abca",
+    "katex-blueE": "#1c758a",
+    "katex-tealA": "#acead7",
+    "katex-tealB": "#76ddc0",
+    "katex-tealC": "#5cd0b3",
+    "katex-tealD": "#55c1a7",
+    "katex-tealE": "#49a88f",
+    "katex-greenA": "#c9e2ae",
+    "katex-greenB": "#a6cf8c",
+    "katex-greenC": "#83c167",
+    "katex-greenD": "#77b05d",
+    "katex-greenE": "#699c52",
+    "katex-goldA": "#f7c797",
+    "katex-goldB": "#f9b775",
+    "katex-goldC": "#f0ac5f",
+    "katex-goldD": "#e1a158",
+    "katex-goldE": "#c78d46",
+    "katex-redA": "#f7a1a3",
+    "katex-redB": "#ff8080",
+    "katex-redC": "#fc6255",
+    "katex-redD": "#e65a4c",
+    "katex-redE": "#cf5044",
+    "katex-maroonA": "#ecabc1",
+    "katex-maroonB": "#ec92ab",
+    "katex-maroonC": "#c55f73",
+    "katex-maroonD": "#a24d61",
+    "katex-maroonE": "#94424f",
+    "katex-purpleA": "#caa3e8",
+    "katex-purpleB": "#b189c6",
+    "katex-purpleC": "#9a72ac",
+    "katex-purpleD": "#715582",
+    "katex-purpleE": "#644172",
+    "katex-mintA": "#f5f9e8",
+    "katex-mintB": "#edf2df",
+    "katex-mintC": "#e0e5cc",
+    "katex-grayA": "#fdfdfd",
+    "katex-grayB": "#f7f7f7",
+    "katex-grayC": "#eeeeee",
+    "katex-grayD": "#dddddd",
+    "katex-grayE": "#cccccc",
+    "katex-grayF": "#aaaaaa",
+    "katex-grayG": "#999999",
+    "katex-grayH": "#555555",
+    "katex-grayI": "#333333",
+    "katex-kaBlue": "#314453",
+    "katex-kaGreen": "#639b24",
 };
 
 /**

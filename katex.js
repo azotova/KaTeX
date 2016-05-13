@@ -1,3 +1,4 @@
+/* eslint no-console:0 */
 /**
  * This is the main entry point for KaTeX. Here, we expose functions for
  * rendering expressions either to DOM nodes or to markup strings.
@@ -52,8 +53,22 @@ var renderToString = function(expression, options) {
     return buildTree(tree, expression, settings).toMarkup();
 };
 
+/**
+ * Parse an expression and return the parse tree.
+ */
+var generateParseTree = function(expression, options) {
+    var settings = new Settings(options);
+    return parseTree(expression, settings);
+};
+
 module.exports = {
     render: render,
     renderToString: renderToString,
-    ParseError: ParseError
+    /**
+     * NOTE: This method is not currently recommended for public use.
+     * The internal tree representation is unstable and is very likely
+     * to change. Use at your own risk.
+     */
+    __parse: generateParseTree,
+    ParseError: ParseError,
 };

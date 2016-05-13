@@ -144,7 +144,10 @@ var makeInner = function(symbol, font, mode) {
 var makeStackedDelim = function(delim, heightTotal, center, options, mode) {
     // There are four parts, the top, an optional middle, a repeated part, and a
     // bottom.
-    var top, middle, repeat, bottom;
+    var top;
+    var middle;
+    var repeat;
+    var bottom;
     top = repeat = bottom = delim;
     middle = null;
     // Also keep track of what font the delimiters are in
@@ -217,6 +220,26 @@ var makeStackedDelim = function(delim, heightTotal, center, options, mode) {
         bottom = "\u23ad";
         repeat = "\u23aa";
         font = "Size4-Regular";
+    } else if (delim === "\\lgroup") {
+        top = "\u23a7";
+        bottom = "\u23a9";
+        repeat = "\u23aa";
+        font = "Size4-Regular";
+    } else if (delim === "\\rgroup") {
+        top = "\u23ab";
+        bottom = "\u23ad";
+        repeat = "\u23aa";
+        font = "Size4-Regular";
+    } else if (delim === "\\lmoustache") {
+        top = "\u23a7";
+        bottom = "\u23ad";
+        repeat = "\u23aa";
+        font = "Size4-Regular";
+    } else if (delim === "\\rmoustache") {
+        top = "\u23ab";
+        bottom = "\u23a9";
+        repeat = "\u23aa";
+        font = "Size4-Regular";
     } else if (delim === "\\surd") {
         top = "\ue001";
         bottom = "\u23b7";
@@ -231,28 +254,25 @@ var makeStackedDelim = function(delim, heightTotal, center, options, mode) {
     var repeatHeightTotal = repeatMetrics.height + repeatMetrics.depth;
     var bottomMetrics = getMetrics(bottom, font);
     var bottomHeightTotal = bottomMetrics.height + bottomMetrics.depth;
-    var middleMetrics, middleHeightTotal;
+    var middleHeightTotal = 0;
+    var middleFactor = 1;
     if (middle !== null) {
-        middleMetrics = getMetrics(middle, font);
+        var middleMetrics = getMetrics(middle, font);
         middleHeightTotal = middleMetrics.height + middleMetrics.depth;
+        middleFactor = 2; // repeat symmetrically above and below middle
     }
 
-    // Calcuate the real height that the delimiter will have. It is at least the
-    // size of the top, bottom, and optional middle combined.
-    var realHeightTotal = topHeightTotal + bottomHeightTotal;
-    if (middle !== null) {
-        realHeightTotal += middleHeightTotal;
-    }
+    // Calcuate the minimal height that the delimiter can have.
+    // It is at least the size of the top, bottom, and optional middle combined.
+    var minHeight = topHeightTotal + bottomHeightTotal + middleHeightTotal;
 
-    // Then add repeated pieces until we reach the specified height.
-    while (realHeightTotal < heightTotal) {
-        realHeightTotal += repeatHeightTotal;
-        if (middle !== null) {
-            // If there is a middle section, we need an equal number of pieces
-            // on the top and bottom.
-            realHeightTotal += repeatHeightTotal;
-        }
-    }
+    // Compute the number of copies of the repeat symbol we will need
+    var repeatCount = Math.ceil(
+        (heightTotal - minHeight) / (middleFactor * repeatHeightTotal));
+
+    // Compute the total height of the delimiter including all the symbols
+    var realHeightTotal =
+        minHeight + repeatCount * middleFactor * repeatHeightTotal;
 
     // The center of the delimiter is placed at the center of the axis. Note
     // that in this context, "center" means that the delimiter should be
@@ -275,39 +295,18 @@ var makeStackedDelim = function(delim, heightTotal, center, options, mode) {
 
     var i;
     if (middle === null) {
-        // Calculate the number of repeated symbols we need
-        var repeatHeight = realHeightTotal - topHeightTotal - bottomHeightTotal;
-        var symbolCount = Math.ceil(repeatHeight / repeatHeightTotal);
-
         // Add that many symbols
-        for (i = 0; i < symbolCount; i++) {
+        for (i = 0; i < repeatCount; i++) {
             inners.push(makeInner(repeat, font, mode));
         }
     } else {
         // When there is a middle bit, we need the middle part and two repeated
         // sections
-
-        // Calculate the number of symbols needed for the top and bottom
-        // repeated parts
-        var topRepeatHeight =
-            realHeightTotal / 2 - topHeightTotal - middleHeightTotal / 2;
-        var topSymbolCount = Math.ceil(topRepeatHeight / repeatHeightTotal);
-
-        var bottomRepeatHeight =
-            realHeightTotal / 2 - topHeightTotal - middleHeightTotal / 2;
-        var bottomSymbolCount =
-            Math.ceil(bottomRepeatHeight / repeatHeightTotal);
-
-        // Add the top repeated part
-        for (i = 0; i < topSymbolCount; i++) {
+        for (i = 0; i < repeatCount; i++) {
             inners.push(makeInner(repeat, font, mode));
         }
-
-        // Add the middle piece
         inners.push(makeInner(middle, font, mode));
-
-        // Add the bottom repeated part
-        for (i = 0; i < bottomSymbolCount; i++) {
+        for (i = 0; i < repeatCount; i++) {
             inners.push(makeInner(repeat, font, mode));
         }
     }
@@ -329,19 +328,21 @@ var stackLargeDelimiters = [
     "(", ")", "[", "\\lbrack", "]", "\\rbrack",
     "\\{", "\\lbrace", "\\}", "\\rbrace",
     "\\lfloor", "\\rfloor", "\\lceil", "\\rceil",
-    "\\surd"
+    "\\surd",
 ];
 
 // delimiters that always stack
 var stackAlwaysDelimiters = [
     "\\uparrow", "\\downarrow", "\\updownarrow",
     "\\Uparrow", "\\Downarrow", "\\Updownarrow",
-    "|", "\\|", "\\vert", "\\Vert"
+    "|", "\\|", "\\vert", "\\Vert",
+    "\\lvert", "\\rvert", "\\lVert", "\\rVert",
+    "\\lgroup", "\\rgroup", "\\lmoustache", "\\rmoustache",
 ];
 
 // and delimiters that never stack
 var stackNeverDelimiters = [
-    "<", ">", "\\langle", "\\rangle", "/", "\\backslash"
+    "<", ">", "\\langle", "\\rangle", "/", "\\backslash", "\\lt", "\\gt",
 ];
 
 // Metrics of the different sizes. Found by looking at TeX's output of
@@ -354,9 +355,9 @@ var sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3.0];
  */
 var makeSizedDelim = function(delim, size, options, mode) {
     // < and > turn into \langle and \rangle in delimiters
-    if (delim === "<") {
+    if (delim === "<" || delim === "\\lt") {
         delim = "\\langle";
-    } else if (delim === ">") {
+    } else if (delim === ">" || delim === "\\gt") {
         delim = "\\rangle";
     }
 
@@ -392,7 +393,7 @@ var stackNeverDelimiterSequence = [
     {type: "large", size: 1},
     {type: "large", size: 2},
     {type: "large", size: 3},
-    {type: "large", size: 4}
+    {type: "large", size: 4},
 ];
 
 // Delimiters that always stack try the small delimiters first, then stack
@@ -400,7 +401,7 @@ var stackAlwaysDelimiterSequence = [
     {type: "small", style: Style.SCRIPTSCRIPT},
     {type: "small", style: Style.SCRIPT},
     {type: "small", style: Style.TEXT},
-    {type: "stack"}
+    {type: "stack"},
 ];
 
 // Delimiters that stack when large try the small and then large delimiters, and
@@ -413,7 +414,7 @@ var stackLargeDelimiterSequence = [
     {type: "large", size: 2},
     {type: "large", size: 3},
     {type: "large", size: 4},
-    {type: "stack"}
+    {type: "stack"},
 ];
 
 /**
@@ -470,9 +471,9 @@ var traverseSequence = function(delim, height, sequence, options) {
  * traverse the sequences, and create a delimiter that the sequence tells us to.
  */
 var makeCustomSizedDelim = function(delim, height, center, options, mode) {
-    if (delim === "<") {
+    if (delim === "<" || delim === "\\lt") {
         delim = "\\langle";
-    } else if (delim === ">") {
+    } else if (delim === ">" || delim === "\\gt") {
         delim = "\\rangle";
     }
 
@@ -537,5 +538,5 @@ var makeLeftRightDelim = function(delim, height, depth, options, mode) {
 module.exports = {
     sizedDelim: makeSizedDelim,
     customSizedDelim: makeCustomSizedDelim,
-    leftRightDelim: makeLeftRightDelim
+    leftRightDelim: makeLeftRightDelim,
 };
