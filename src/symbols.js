@@ -1,3 +1,4 @@
+// @flow
 /**
  * This file holds a list of all no-argument functions and single-character
  * symbols (like 'a' or ';').
@@ -16,69 +17,86 @@
  * accepted in (e.g. "math" or "text").
  */
 
-module.exports = {
-    math: {},
-    text: {},
-};
+import type {Mode} from "./types";
 
-function defineSymbol(mode, font, group, replace, name) {
-    module.exports[mode][name] = {
-        font: font,
-        group: group,
-        replace: replace,
-    };
+type Font = "main" | "ams";
+type Group =
+    "accent" | "bin" | "close" | "inner" | "mathord" | "op" | "open" | "punct" |
+    "rel" | "spacing" | "textord";
+type CharInfoMap = {[string]: {font: Font, group: Group, replace: ?string}};
+
+const symbols: {[Mode]: CharInfoMap} = {
+    "math": {},
+    "text": {},
+};
+export default symbols;
+
+/** `acceptUnicodeChar = true` is only applicable if `replace` is set. */
+function defineSymbol(
+    mode: Mode,
+    font: Font,
+    group: Group,
+    replace: ?string,
+    name: string,
+    acceptUnicodeChar?: boolean,
+) {
+    symbols[mode][name] = {font, group, replace};
+
+    if (acceptUnicodeChar && replace) {
+        symbols[mode][replace] = symbols[mode][name];
+    }
 }
 
 // Some abbreviations for commonly used strings.
 // This helps minify the code, and also spotting typos using jshint.
 
 // modes:
-var math = "math";
-var text = "text";
+const math = "math";
+const text = "text";
 
 // fonts:
-var main = "main";
-var ams = "ams";
+const main = "main";
+const ams = "ams";
 
 // groups:
-var accent = "accent";
-var bin = "bin";
-var close = "close";
-var inner = "inner";
-var mathord = "mathord";
-var op = "op";
-var open = "open";
-var punct = "punct";
-var rel = "rel";
-var spacing = "spacing";
-var textord = "textord";
+const accent = "accent";
+const bin = "bin";
+const close = "close";
+const inner = "inner";
+const mathord = "mathord";
+const op = "op";
+const open = "open";
+const punct = "punct";
+const rel = "rel";
+const spacing = "spacing";
+const textord = "textord";
 
 // Now comes the symbol table
 
 // Relation Symbols
-defineSymbol(math, main, rel, "\u2261", "\\equiv");
-defineSymbol(math, main, rel, "\u227a", "\\prec");
-defineSymbol(math, main, rel, "\u227b", "\\succ");
-defineSymbol(math, main, rel, "\u223c", "\\sim");
+defineSymbol(math, main, rel, "\u2261", "\\equiv", true);
+defineSymbol(math, main, rel, "\u227a", "\\prec", true);
+defineSymbol(math, main, rel, "\u227b", "\\succ", true);
+defineSymbol(math, main, rel, "\u223c", "\\sim", true);
 defineSymbol(math, main, rel, "\u22a5", "\\perp");
-defineSymbol(math, main, rel, "\u2aaf", "\\preceq");
-defineSymbol(math, main, rel, "\u2ab0", "\\succeq");
-defineSymbol(math, main, rel, "\u2243", "\\simeq");
+defineSymbol(math, main, rel, "\u2aaf", "\\preceq", true);
+defineSymbol(math, main, rel, "\u2ab0", "\\succeq", true);
+defineSymbol(math, main, rel, "\u2243", "\\simeq", true);
 defineSymbol(math, main, rel, "\u2223", "\\mid");
 defineSymbol(math, main, rel, "\u226a", "\\ll");
-defineSymbol(math, main, rel, "\u226b", "\\gg");
-defineSymbol(math, main, rel, "\u224d", "\\asymp");
+defineSymbol(math, main, rel, "\u226b", "\\gg", true);
+defineSymbol(math, main, rel, "\u224d", "\\asymp", true);
 defineSymbol(math, main, rel, "\u2225", "\\parallel");
-defineSymbol(math, main, rel, "\u22c8", "\\bowtie");
-defineSymbol(math, main, rel, "\u2323", "\\smile");
-defineSymbol(math, main, rel, "\u2291", "\\sqsubseteq");
-defineSymbol(math, main, rel, "\u2292", "\\sqsupseteq");
-defineSymbol(math, main, rel, "\u2250", "\\doteq");
-defineSymbol(math, main, rel, "\u2322", "\\frown");
-defineSymbol(math, main, rel, "\u220b", "\\ni");
-defineSymbol(math, main, rel, "\u221d", "\\propto");
-defineSymbol(math, main, rel, "\u22a2", "\\vdash");
-defineSymbol(math, main, rel, "\u22a3", "\\dashv");
+defineSymbol(math, main, rel, "\u22c8", "\\bowtie", true);
+defineSymbol(math, main, rel, "\u2323", "\\smile", true);
+defineSymbol(math, main, rel, "\u2291", "\\sqsubseteq", true);
+defineSymbol(math, main, rel, "\u2292", "\\sqsupseteq", true);
+defineSymbol(math, main, rel, "\u2250", "\\doteq", true);
+defineSymbol(math, main, rel, "\u2322", "\\frown", true);
+defineSymbol(math, main, rel, "\u220b", "\\ni", true);
+defineSymbol(math, main, rel, "\u221d", "\\propto", true);
+defineSymbol(math, main, rel, "\u22a2", "\\vdash", true);
+defineSymbol(math, main, rel, "\u22a3", "\\dashv", true);
 defineSymbol(math, main, rel, "\u220b", "\\owns");
 
 // Punctuation
@@ -87,7 +105,9 @@ defineSymbol(math, main, punct, "\u22c5", "\\cdotp");
 
 // Misc Symbols
 defineSymbol(math, main, textord, "\u0023", "\\#");
+defineSymbol(text, main, textord, "\u0023", "\\#");
 defineSymbol(math, main, textord, "\u0026", "\\&");
+defineSymbol(text, main, textord, "\u0026", "\\&");
 defineSymbol(math, main, textord, "\u2135", "\\aleph");
 defineSymbol(math, main, textord, "\u2200", "\\forall");
 defineSymbol(math, main, textord, "\u210f", "\\hbar");
@@ -107,7 +127,11 @@ defineSymbol(math, main, textord, "\u2660", "\\spadesuit");
 
 // Math and Text
 defineSymbol(math, main, textord, "\u2020", "\\dag");
+defineSymbol(text, main, textord, "\u2020", "\\dag");
+defineSymbol(text, main, textord, "\u2020", "\\textdagger");
 defineSymbol(math, main, textord, "\u2021", "\\ddag");
+defineSymbol(text, main, textord, "\u2021", "\\ddag");
+defineSymbol(text, main, textord, "\u2020", "\\textdaggerdbl");
 
 // Large Delimiters
 defineSymbol(math, main, close, "\u23b1", "\\rmoustache");
@@ -127,6 +151,7 @@ defineSymbol(math, main, bin, "\u2219", "\\bullet");
 defineSymbol(math, main, bin, "\u2021", "\\ddagger");
 defineSymbol(math, main, bin, "\u2240", "\\wr");
 defineSymbol(math, main, bin, "\u2a3f", "\\amalg");
+defineSymbol(math, main, bin, "\u0026", "\\And");  // from amsmath
 
 // Arrow Symbols
 defineSymbol(math, main, rel, "\u27f5", "\\longleftarrow");
@@ -222,6 +247,7 @@ defineSymbol(math, ams, textord, "\u25bd", "\\triangledown");
 defineSymbol(math, ams, textord, "\u25ca", "\\lozenge");
 defineSymbol(math, ams, textord, "\u24c8", "\\circledS");
 defineSymbol(math, ams, textord, "\u00ae", "\\circledR");
+defineSymbol(text, ams, textord, "\u00ae", "\\circledR");
 defineSymbol(math, ams, textord, "\u2221", "\\measuredangle");
 defineSymbol(math, ams, textord, "\u2204", "\\nexists");
 defineSymbol(math, ams, textord, "\u2127", "\\mho");
@@ -244,6 +270,7 @@ defineSymbol(math, ams, textord, "\u25a1", "\\Box");
 defineSymbol(math, ams, textord, "\u25ca", "\\Diamond");
 defineSymbol(math, ams, textord, "\u00a5", "\\yen");
 defineSymbol(math, ams, textord, "\u2713", "\\checkmark");
+defineSymbol(text, ams, textord, "\u2713", "\\checkmark");
 
 // AMS Hebrew
 defineSymbol(math, ams, textord, "\u2136", "\\beth");
@@ -261,66 +288,66 @@ defineSymbol(math, ams, open, "\u2514", "\\llcorner");
 defineSymbol(math, ams, close, "\u2518", "\\lrcorner");
 
 // AMS Binary Relations
-defineSymbol(math, ams, rel, "\u2266", "\\leqq");
+defineSymbol(math, ams, rel, "\u2266", "\\leqq", true);
 defineSymbol(math, ams, rel, "\u2a7d", "\\leqslant");
-defineSymbol(math, ams, rel, "\u2a95", "\\eqslantless");
+defineSymbol(math, ams, rel, "\u2a95", "\\eqslantless", true);
 defineSymbol(math, ams, rel, "\u2272", "\\lesssim");
 defineSymbol(math, ams, rel, "\u2a85", "\\lessapprox");
-defineSymbol(math, ams, rel, "\u224a", "\\approxeq");
+defineSymbol(math, ams, rel, "\u224a", "\\approxeq", true);
 defineSymbol(math, ams, bin, "\u22d6", "\\lessdot");
 defineSymbol(math, ams, rel, "\u22d8", "\\lll");
 defineSymbol(math, ams, rel, "\u2276", "\\lessgtr");
 defineSymbol(math, ams, rel, "\u22da", "\\lesseqgtr");
 defineSymbol(math, ams, rel, "\u2a8b", "\\lesseqqgtr");
 defineSymbol(math, ams, rel, "\u2251", "\\doteqdot");
-defineSymbol(math, ams, rel, "\u2253", "\\risingdotseq");
-defineSymbol(math, ams, rel, "\u2252", "\\fallingdotseq");
-defineSymbol(math, ams, rel, "\u223d", "\\backsim");
-defineSymbol(math, ams, rel, "\u22cd", "\\backsimeq");
-defineSymbol(math, ams, rel, "\u2ac5", "\\subseteqq");
-defineSymbol(math, ams, rel, "\u22d0", "\\Subset");
-defineSymbol(math, ams, rel, "\u228f", "\\sqsubset");
-defineSymbol(math, ams, rel, "\u227c", "\\preccurlyeq");
-defineSymbol(math, ams, rel, "\u22de", "\\curlyeqprec");
-defineSymbol(math, ams, rel, "\u227e", "\\precsim");
-defineSymbol(math, ams, rel, "\u2ab7", "\\precapprox");
+defineSymbol(math, ams, rel, "\u2253", "\\risingdotseq", true);
+defineSymbol(math, ams, rel, "\u2252", "\\fallingdotseq", true);
+defineSymbol(math, ams, rel, "\u223d", "\\backsim", true);
+defineSymbol(math, ams, rel, "\u22cd", "\\backsimeq", true);
+defineSymbol(math, ams, rel, "\u2ac5", "\\subseteqq", true);
+defineSymbol(math, ams, rel, "\u22d0", "\\Subset", true);
+defineSymbol(math, ams, rel, "\u228f", "\\sqsubset", true);
+defineSymbol(math, ams, rel, "\u227c", "\\preccurlyeq", true);
+defineSymbol(math, ams, rel, "\u22de", "\\curlyeqprec", true);
+defineSymbol(math, ams, rel, "\u227e", "\\precsim", true);
+defineSymbol(math, ams, rel, "\u2ab7", "\\precapprox", true);
 defineSymbol(math, ams, rel, "\u22b2", "\\vartriangleleft");
 defineSymbol(math, ams, rel, "\u22b4", "\\trianglelefteq");
 defineSymbol(math, ams, rel, "\u22a8", "\\vDash");
-defineSymbol(math, ams, rel, "\u22aa", "\\Vvdash");
+defineSymbol(math, ams, rel, "\u22aa", "\\Vvdash", true);
 defineSymbol(math, ams, rel, "\u2323", "\\smallsmile");
 defineSymbol(math, ams, rel, "\u2322", "\\smallfrown");
-defineSymbol(math, ams, rel, "\u224f", "\\bumpeq");
-defineSymbol(math, ams, rel, "\u224e", "\\Bumpeq");
-defineSymbol(math, ams, rel, "\u2267", "\\geqq");
-defineSymbol(math, ams, rel, "\u2a7e", "\\geqslant");
-defineSymbol(math, ams, rel, "\u2a96", "\\eqslantgtr");
-defineSymbol(math, ams, rel, "\u2273", "\\gtrsim");
-defineSymbol(math, ams, rel, "\u2a86", "\\gtrapprox");
+defineSymbol(math, ams, rel, "\u224f", "\\bumpeq", true);
+defineSymbol(math, ams, rel, "\u224e", "\\Bumpeq", true);
+defineSymbol(math, ams, rel, "\u2267", "\\geqq", true);
+defineSymbol(math, ams, rel, "\u2a7e", "\\geqslant", true);
+defineSymbol(math, ams, rel, "\u2a96", "\\eqslantgtr", true);
+defineSymbol(math, ams, rel, "\u2273", "\\gtrsim", true);
+defineSymbol(math, ams, rel, "\u2a86", "\\gtrapprox", true);
 defineSymbol(math, ams, bin, "\u22d7", "\\gtrdot");
-defineSymbol(math, ams, rel, "\u22d9", "\\ggg");
-defineSymbol(math, ams, rel, "\u2277", "\\gtrless");
-defineSymbol(math, ams, rel, "\u22db", "\\gtreqless");
-defineSymbol(math, ams, rel, "\u2a8c", "\\gtreqqless");
-defineSymbol(math, ams, rel, "\u2256", "\\eqcirc");
-defineSymbol(math, ams, rel, "\u2257", "\\circeq");
-defineSymbol(math, ams, rel, "\u225c", "\\triangleq");
+defineSymbol(math, ams, rel, "\u22d9", "\\ggg", true);
+defineSymbol(math, ams, rel, "\u2277", "\\gtrless", true);
+defineSymbol(math, ams, rel, "\u22db", "\\gtreqless", true);
+defineSymbol(math, ams, rel, "\u2a8c", "\\gtreqqless", true);
+defineSymbol(math, ams, rel, "\u2256", "\\eqcirc", true);
+defineSymbol(math, ams, rel, "\u2257", "\\circeq", true);
+defineSymbol(math, ams, rel, "\u225c", "\\triangleq", true);
 defineSymbol(math, ams, rel, "\u223c", "\\thicksim");
 defineSymbol(math, ams, rel, "\u2248", "\\thickapprox");
-defineSymbol(math, ams, rel, "\u2ac6", "\\supseteqq");
-defineSymbol(math, ams, rel, "\u22d1", "\\Supset");
-defineSymbol(math, ams, rel, "\u2290", "\\sqsupset");
-defineSymbol(math, ams, rel, "\u227d", "\\succcurlyeq");
-defineSymbol(math, ams, rel, "\u22df", "\\curlyeqsucc");
-defineSymbol(math, ams, rel, "\u227f", "\\succsim");
-defineSymbol(math, ams, rel, "\u2ab8", "\\succapprox");
+defineSymbol(math, ams, rel, "\u2ac6", "\\supseteqq", true);
+defineSymbol(math, ams, rel, "\u22d1", "\\Supset", true);
+defineSymbol(math, ams, rel, "\u2290", "\\sqsupset", true);
+defineSymbol(math, ams, rel, "\u227d", "\\succcurlyeq", true);
+defineSymbol(math, ams, rel, "\u22df", "\\curlyeqsucc", true);
+defineSymbol(math, ams, rel, "\u227f", "\\succsim", true);
+defineSymbol(math, ams, rel, "\u2ab8", "\\succapprox", true);
 defineSymbol(math, ams, rel, "\u22b3", "\\vartriangleright");
 defineSymbol(math, ams, rel, "\u22b5", "\\trianglerighteq");
-defineSymbol(math, ams, rel, "\u22a9", "\\Vdash");
+defineSymbol(math, ams, rel, "\u22a9", "\\Vdash", true);
 defineSymbol(math, ams, rel, "\u2223", "\\shortmid");
 defineSymbol(math, ams, rel, "\u2225", "\\shortparallel");
-defineSymbol(math, ams, rel, "\u226c", "\\between");
-defineSymbol(math, ams, rel, "\u22d4", "\\pitchfork");
+defineSymbol(math, ams, rel, "\u226c", "\\between", true);
+defineSymbol(math, ams, rel, "\u22d4", "\\pitchfork", true);
 defineSymbol(math, ams, rel, "\u221d", "\\varpropto");
 defineSymbol(math, ams, rel, "\u25c0", "\\blacktriangleleft");
 defineSymbol(math, ams, rel, "\u2234", "\\therefore");
@@ -331,9 +358,9 @@ defineSymbol(math, ams, rel, "\u22d8", "\\llless");
 defineSymbol(math, ams, rel, "\u22d9", "\\gggtr");
 defineSymbol(math, ams, bin, "\u22b2", "\\lhd");
 defineSymbol(math, ams, bin, "\u22b3", "\\rhd");
-defineSymbol(math, ams, rel, "\u2242", "\\eqsim");
+defineSymbol(math, ams, rel, "\u2242", "\\eqsim", true);
 defineSymbol(math, main, rel, "\u22c8", "\\Join");
-defineSymbol(math, ams, rel, "\u2251", "\\Doteq");
+defineSymbol(math, ams, rel, "\u2251", "\\Doteq", true);
 
 // AMS Binary Operators
 defineSymbol(math, ams, bin, "\u2214", "\\dotplus");
@@ -374,7 +401,7 @@ defineSymbol(math, ams, rel, "\u21b0", "\\Lsh");
 defineSymbol(math, ams, rel, "\u21c8", "\\upuparrows");
 defineSymbol(math, ams, rel, "\u21bf", "\\upharpoonleft");
 defineSymbol(math, ams, rel, "\u21c3", "\\downharpoonleft");
-defineSymbol(math, ams, rel, "\u22b8", "\\multimap");
+defineSymbol(math, ams, rel, "\u22b8", "\\multimap", true);
 defineSymbol(math, ams, rel, "\u21ad", "\\leftrightsquigarrow");
 defineSymbol(math, ams, rel, "\u21c9", "\\rightrightarrows");
 defineSymbol(math, ams, rel, "\u21c4", "\\rightleftarrows");
@@ -394,59 +421,64 @@ defineSymbol(math, ams, rel, "\u21be", "\\restriction");
 
 defineSymbol(math, main, textord, "\u2018", "`");
 defineSymbol(math, main, textord, "$", "\\$");
+defineSymbol(text, main, textord, "$", "\\$");
+defineSymbol(text, main, textord, "$", "\\textdollar");
 defineSymbol(math, main, textord, "%", "\\%");
+defineSymbol(text, main, textord, "%", "\\%");
 defineSymbol(math, main, textord, "_", "\\_");
+defineSymbol(text, main, textord, "_", "\\_");
+defineSymbol(text, main, textord, "_", "\\textunderscore");
 defineSymbol(math, main, textord, "\u2220", "\\angle");
 defineSymbol(math, main, textord, "\u221e", "\\infty");
 defineSymbol(math, main, textord, "\u2032", "\\prime");
 defineSymbol(math, main, textord, "\u25b3", "\\triangle");
-defineSymbol(math, main, textord, "\u0393", "\\Gamma");
-defineSymbol(math, main, textord, "\u0394", "\\Delta");
-defineSymbol(math, main, textord, "\u0398", "\\Theta");
-defineSymbol(math, main, textord, "\u039b", "\\Lambda");
-defineSymbol(math, main, textord, "\u039e", "\\Xi");
-defineSymbol(math, main, textord, "\u03a0", "\\Pi");
-defineSymbol(math, main, textord, "\u03a3", "\\Sigma");
-defineSymbol(math, main, textord, "\u03a5", "\\Upsilon");
-defineSymbol(math, main, textord, "\u03a6", "\\Phi");
-defineSymbol(math, main, textord, "\u03a8", "\\Psi");
-defineSymbol(math, main, textord, "\u03a9", "\\Omega");
+defineSymbol(math, main, textord, "\u0393", "\\Gamma", true);
+defineSymbol(math, main, textord, "\u0394", "\\Delta", true);
+defineSymbol(math, main, textord, "\u0398", "\\Theta", true);
+defineSymbol(math, main, textord, "\u039b", "\\Lambda", true);
+defineSymbol(math, main, textord, "\u039e", "\\Xi", true);
+defineSymbol(math, main, textord, "\u03a0", "\\Pi", true);
+defineSymbol(math, main, textord, "\u03a3", "\\Sigma", true);
+defineSymbol(math, main, textord, "\u03a5", "\\Upsilon", true);
+defineSymbol(math, main, textord, "\u03a6", "\\Phi", true);
+defineSymbol(math, main, textord, "\u03a8", "\\Psi", true);
+defineSymbol(math, main, textord, "\u03a9", "\\Omega", true);
 defineSymbol(math, main, textord, "\u00ac", "\\neg");
 defineSymbol(math, main, textord, "\u00ac", "\\lnot");
 defineSymbol(math, main, textord, "\u22a4", "\\top");
 defineSymbol(math, main, textord, "\u22a5", "\\bot");
 defineSymbol(math, main, textord, "\u2205", "\\emptyset");
 defineSymbol(math, ams, textord, "\u2205", "\\varnothing");
-defineSymbol(math, main, mathord, "\u03b1", "\\alpha");
-defineSymbol(math, main, mathord, "\u03b2", "\\beta");
-defineSymbol(math, main, mathord, "\u03b3", "\\gamma");
-defineSymbol(math, main, mathord, "\u03b4", "\\delta");
-defineSymbol(math, main, mathord, "\u03f5", "\\epsilon");
-defineSymbol(math, main, mathord, "\u03b6", "\\zeta");
-defineSymbol(math, main, mathord, "\u03b7", "\\eta");
-defineSymbol(math, main, mathord, "\u03b8", "\\theta");
-defineSymbol(math, main, mathord, "\u03b9", "\\iota");
-defineSymbol(math, main, mathord, "\u03ba", "\\kappa");
-defineSymbol(math, main, mathord, "\u03bb", "\\lambda");
-defineSymbol(math, main, mathord, "\u03bc", "\\mu");
-defineSymbol(math, main, mathord, "\u03bd", "\\nu");
-defineSymbol(math, main, mathord, "\u03be", "\\xi");
-defineSymbol(math, main, mathord, "o", "\\omicron");
-defineSymbol(math, main, mathord, "\u03c0", "\\pi");
-defineSymbol(math, main, mathord, "\u03c1", "\\rho");
-defineSymbol(math, main, mathord, "\u03c3", "\\sigma");
-defineSymbol(math, main, mathord, "\u03c4", "\\tau");
-defineSymbol(math, main, mathord, "\u03c5", "\\upsilon");
-defineSymbol(math, main, mathord, "\u03d5", "\\phi");
-defineSymbol(math, main, mathord, "\u03c7", "\\chi");
-defineSymbol(math, main, mathord, "\u03c8", "\\psi");
-defineSymbol(math, main, mathord, "\u03c9", "\\omega");
-defineSymbol(math, main, mathord, "\u03b5", "\\varepsilon");
-defineSymbol(math, main, mathord, "\u03d1", "\\vartheta");
-defineSymbol(math, main, mathord, "\u03d6", "\\varpi");
-defineSymbol(math, main, mathord, "\u03f1", "\\varrho");
-defineSymbol(math, main, mathord, "\u03c2", "\\varsigma");
-defineSymbol(math, main, mathord, "\u03c6", "\\varphi");
+defineSymbol(math, main, mathord, "\u03b1", "\\alpha", true);
+defineSymbol(math, main, mathord, "\u03b2", "\\beta", true);
+defineSymbol(math, main, mathord, "\u03b3", "\\gamma", true);
+defineSymbol(math, main, mathord, "\u03b4", "\\delta", true);
+defineSymbol(math, main, mathord, "\u03f5", "\\epsilon", true);
+defineSymbol(math, main, mathord, "\u03b6", "\\zeta", true);
+defineSymbol(math, main, mathord, "\u03b7", "\\eta", true);
+defineSymbol(math, main, mathord, "\u03b8", "\\theta", true);
+defineSymbol(math, main, mathord, "\u03b9", "\\iota", true);
+defineSymbol(math, main, mathord, "\u03ba", "\\kappa", true);
+defineSymbol(math, main, mathord, "\u03bb", "\\lambda", true);
+defineSymbol(math, main, mathord, "\u03bc", "\\mu", true);
+defineSymbol(math, main, mathord, "\u03bd", "\\nu", true);
+defineSymbol(math, main, mathord, "\u03be", "\\xi", true);
+defineSymbol(math, main, mathord, "\u03bf", "\\omicron", true);
+defineSymbol(math, main, mathord, "\u03c0", "\\pi", true);
+defineSymbol(math, main, mathord, "\u03c1", "\\rho", true);
+defineSymbol(math, main, mathord, "\u03c3", "\\sigma", true);
+defineSymbol(math, main, mathord, "\u03c4", "\\tau", true);
+defineSymbol(math, main, mathord, "\u03c5", "\\upsilon", true);
+defineSymbol(math, main, mathord, "\u03d5", "\\phi", true);
+defineSymbol(math, main, mathord, "\u03c7", "\\chi", true);
+defineSymbol(math, main, mathord, "\u03c8", "\\psi", true);
+defineSymbol(math, main, mathord, "\u03c9", "\\omega", true);
+defineSymbol(math, main, mathord, "\u03b5", "\\varepsilon", true);
+defineSymbol(math, main, mathord, "\u03d1", "\\vartheta", true);
+defineSymbol(math, main, mathord, "\u03d6", "\\varpi", true);
+defineSymbol(math, main, mathord, "\u03f1", "\\varrho", true);
+defineSymbol(math, main, mathord, "\u03c2", "\\varsigma", true);
+defineSymbol(math, main, mathord, "\u03c6", "\\varphi", true);
 defineSymbol(math, main, bin, "\u2217", "*");
 defineSymbol(math, main, bin, "+", "+");
 defineSymbol(math, main, bin, "\u2212", "-");
@@ -479,24 +511,25 @@ defineSymbol(math, main, rel, "=", "=");
 defineSymbol(math, main, rel, "<", "<");
 defineSymbol(math, main, rel, ">", ">");
 defineSymbol(math, main, rel, ":", ":");
-defineSymbol(math, main, rel, "\u2248", "\\approx");
-defineSymbol(math, main, rel, "\u2245", "\\cong");
+defineSymbol(math, main, rel, "\u2248", "\\approx", true);
+defineSymbol(math, main, rel, "\u2245", "\\cong", true);
 defineSymbol(math, main, rel, "\u2265", "\\ge");
-defineSymbol(math, main, rel, "\u2265", "\\geq");
+defineSymbol(math, main, rel, "\u2265", "\\geq", true);
 defineSymbol(math, main, rel, "\u2190", "\\gets");
 defineSymbol(math, main, rel, ">", "\\gt");
-defineSymbol(math, main, rel, "\u2208", "\\in");
+defineSymbol(math, main, rel, "\u2208", "\\in", true);
 defineSymbol(math, main, rel, "\u2209", "\\notin");
-defineSymbol(math, main, rel, "\u2282", "\\subset");
-defineSymbol(math, main, rel, "\u2283", "\\supset");
-defineSymbol(math, main, rel, "\u2286", "\\subseteq");
-defineSymbol(math, main, rel, "\u2287", "\\supseteq");
+defineSymbol(math, main, rel, "\u0338", "\\not");
+defineSymbol(math, main, rel, "\u2282", "\\subset", true);
+defineSymbol(math, main, rel, "\u2283", "\\supset", true);
+defineSymbol(math, main, rel, "\u2286", "\\subseteq", true);
+defineSymbol(math, main, rel, "\u2287", "\\supseteq", true);
 defineSymbol(math, ams, rel, "\u2288", "\\nsubseteq");
 defineSymbol(math, ams, rel, "\u2289", "\\nsupseteq");
 defineSymbol(math, main, rel, "\u22a8", "\\models");
 defineSymbol(math, main, rel, "\u2190", "\\leftarrow");
 defineSymbol(math, main, rel, "\u2264", "\\le");
-defineSymbol(math, main, rel, "\u2264", "\\leq");
+defineSymbol(math, main, rel, "\u2264", "\\leq", true);
 defineSymbol(math, main, rel, "<", "\\lt");
 defineSymbol(math, main, rel, "\u2260", "\\ne");
 defineSymbol(math, main, rel, "\u2260", "\\neq");
@@ -534,11 +567,17 @@ defineSymbol(math, main, bin, "\u22c6", "\\star");
 defineSymbol(math, main, bin, "\u25c3", "\\triangleleft");
 defineSymbol(math, main, bin, "\u25b9", "\\triangleright");
 defineSymbol(math, main, open, "{", "\\{");
+defineSymbol(text, main, textord, "{", "\\{");
+defineSymbol(text, main, textord, "{", "\\textbraceleft");
 defineSymbol(math, main, close, "}", "\\}");
+defineSymbol(text, main, textord, "}", "\\}");
+defineSymbol(text, main, textord, "}", "\\textbraceright");
 defineSymbol(math, main, open, "{", "\\lbrace");
 defineSymbol(math, main, close, "}", "\\rbrace");
 defineSymbol(math, main, open, "[", "\\lbrack");
 defineSymbol(math, main, close, "]", "\\rbrack");
+defineSymbol(text, main, textord, "<", "\\textless"); // in T1 fontenc
+defineSymbol(text, main, textord, ">", "\\textgreater"); // in T1 fontenc
 defineSymbol(math, main, open, "\u230a", "\\lfloor");
 defineSymbol(math, main, close, "\u230b", "\\rfloor");
 defineSymbol(math, main, open, "\u2308", "\\lceil");
@@ -546,36 +585,41 @@ defineSymbol(math, main, close, "\u2309", "\\rceil");
 defineSymbol(math, main, textord, "\\", "\\backslash");
 defineSymbol(math, main, textord, "\u2223", "|");
 defineSymbol(math, main, textord, "\u2223", "\\vert");
+defineSymbol(text, main, textord, "|", "\\textbar"); // in T1 fontenc
 defineSymbol(math, main, textord, "\u2225", "\\|");
 defineSymbol(math, main, textord, "\u2225", "\\Vert");
+defineSymbol(text, main, textord, "\u2225", "\\textbardbl");
 defineSymbol(math, main, rel, "\u2191", "\\uparrow");
 defineSymbol(math, main, rel, "\u21d1", "\\Uparrow");
 defineSymbol(math, main, rel, "\u2193", "\\downarrow");
 defineSymbol(math, main, rel, "\u21d3", "\\Downarrow");
 defineSymbol(math, main, rel, "\u2195", "\\updownarrow");
 defineSymbol(math, main, rel, "\u21d5", "\\Updownarrow");
-defineSymbol(math, math, op, "\u2210", "\\coprod");
-defineSymbol(math, math, op, "\u22c1", "\\bigvee");
-defineSymbol(math, math, op, "\u22c0", "\\bigwedge");
-defineSymbol(math, math, op, "\u2a04", "\\biguplus");
-defineSymbol(math, math, op, "\u22c2", "\\bigcap");
-defineSymbol(math, math, op, "\u22c3", "\\bigcup");
-defineSymbol(math, math, op, "\u222b", "\\int");
-defineSymbol(math, math, op, "\u222b", "\\intop");
-defineSymbol(math, math, op, "\u222c", "\\iint");
-defineSymbol(math, math, op, "\u222d", "\\iiint");
-defineSymbol(math, math, op, "\u220f", "\\prod");
-defineSymbol(math, math, op, "\u2211", "\\sum");
-defineSymbol(math, math, op, "\u2a02", "\\bigotimes");
-defineSymbol(math, math, op, "\u2a01", "\\bigoplus");
-defineSymbol(math, math, op, "\u2a00", "\\bigodot");
-defineSymbol(math, math, op, "\u222e", "\\oint");
-defineSymbol(math, math, op, "\u2a06", "\\bigsqcup");
-defineSymbol(math, math, op, "\u222b", "\\smallint");
-defineSymbol(math, main, inner, "\u2026", "\\ldots");
-defineSymbol(math, main, inner, "\u22ef", "\\cdots");
-defineSymbol(math, main, inner, "\u22f1", "\\ddots");
-defineSymbol(math, main, textord, "\u22ee", "\\vdots");
+defineSymbol(math, main, op, "\u2210", "\\coprod");
+defineSymbol(math, main, op, "\u22c1", "\\bigvee");
+defineSymbol(math, main, op, "\u22c0", "\\bigwedge");
+defineSymbol(math, main, op, "\u2a04", "\\biguplus");
+defineSymbol(math, main, op, "\u22c2", "\\bigcap");
+defineSymbol(math, main, op, "\u22c3", "\\bigcup");
+defineSymbol(math, main, op, "\u222b", "\\int");
+defineSymbol(math, main, op, "\u222b", "\\intop");
+defineSymbol(math, main, op, "\u222c", "\\iint");
+defineSymbol(math, main, op, "\u222d", "\\iiint");
+defineSymbol(math, main, op, "\u220f", "\\prod");
+defineSymbol(math, main, op, "\u2211", "\\sum");
+defineSymbol(math, main, op, "\u2a02", "\\bigotimes");
+defineSymbol(math, main, op, "\u2a01", "\\bigoplus");
+defineSymbol(math, main, op, "\u2a00", "\\bigodot");
+defineSymbol(math, main, op, "\u222e", "\\oint");
+defineSymbol(math, main, op, "\u2a06", "\\bigsqcup");
+defineSymbol(math, main, op, "\u222b", "\\smallint");
+defineSymbol(text, main, inner, "\u2026", "\\textellipsis");
+defineSymbol(math, main, inner, "\u2026", "\\mathellipsis");
+defineSymbol(text, main, inner, "\u2026", "\\ldots", true);
+defineSymbol(math, main, inner, "\u2026", "\\ldots", true);
+defineSymbol(math, main, inner, "\u22ef", "\\@cdots", true);
+defineSymbol(math, main, inner, "\u22f1", "\\ddots", true);
+defineSymbol(math, main, textord, "\u22ee", "\\vdots", true);
 defineSymbol(math, main, accent, "\u00b4", "\\acute");
 defineSymbol(math, main, accent, "\u0060", "\\grave");
 defineSymbol(math, main, accent, "\u00a8", "\\ddot");
@@ -588,33 +632,98 @@ defineSymbol(math, main, accent, "\u20d7", "\\vec");
 defineSymbol(math, main, accent, "\u02d9", "\\dot");
 defineSymbol(math, main, mathord, "\u0131", "\\imath");
 defineSymbol(math, main, mathord, "\u0237", "\\jmath");
+defineSymbol(text, main, accent, "\u02ca", "\\'"); // acute
+defineSymbol(text, main, accent, "\u02cb", "\\`"); // grave
+defineSymbol(text, main, accent, "\u02c6", "\\^"); // circumflex
+defineSymbol(text, main, accent, "\u02dc", "\\~"); // tilde
+defineSymbol(text, main, accent, "\u02c9", "\\="); // macron
+defineSymbol(text, main, accent, "\u02d8", "\\u"); // breve
+defineSymbol(text, main, accent, "\u02d9", "\\."); // dot above
+defineSymbol(text, main, accent, "\u02da", "\\r"); // ring above
+defineSymbol(text, main, accent, "\u02c7", "\\v"); // caron
+defineSymbol(text, main, accent, "\u00a8", '\\"'); // diaresis
+defineSymbol(text, main, accent, "\u030B", "\\H"); // double acute
+
+defineSymbol(text, main, textord, "\u2013", "--");
+defineSymbol(text, main, textord, "\u2013", "\\textendash");
+defineSymbol(text, main, textord, "\u2014", "---");
+defineSymbol(text, main, textord, "\u2014", "\\textemdash");
+defineSymbol(text, main, textord, "\u2018", "`");
+defineSymbol(text, main, textord, "\u2018", "\\textquoteleft");
+defineSymbol(text, main, textord, "\u2019", "'");
+defineSymbol(text, main, textord, "\u2019", "\\textquoteright");
+defineSymbol(text, main, textord, "\u201c", "``");
+defineSymbol(text, main, textord, "\u201c", "\\textquotedblleft");
+defineSymbol(text, main, textord, "\u201d", "''");
+defineSymbol(text, main, textord, "\u201d", "\\textquotedblright");
+defineSymbol(math, main, textord, "\u00b0", "\\degree");
+defineSymbol(text, main, textord, "\u00b0", "\\degree");
+// TODO: In LaTeX, \pounds can generate a different character in text and math
+// mode, but among our fonts, only Main-Italic defines this character "163".
+defineSymbol(math, main, mathord, "\u00a3", "\\pounds");
+defineSymbol(math, main, mathord, "\u00a3", "\\mathsterling");
+defineSymbol(text, main, mathord, "\u00a3", "\\pounds");
+defineSymbol(text, main, mathord, "\u00a3", "\\textsterling");
+defineSymbol(math, ams, textord, "\u2720", "\\maltese");
+defineSymbol(text, ams, textord, "\u2720", "\\maltese");
 
 defineSymbol(text, main, spacing, "\u00a0", "\\ ");
 defineSymbol(text, main, spacing, "\u00a0", " ");
 defineSymbol(text, main, spacing, "\u00a0", "~");
 
 // There are lots of symbols which are the same, so we add them in afterwards.
-var i;
-var ch;
 
 // All of these are textords in math mode
-var mathTextSymbols = "0123456789/@.\"";
-for (i = 0; i < mathTextSymbols.length; i++) {
-    ch = mathTextSymbols.charAt(i);
+const mathTextSymbols = "0123456789/@.\"";
+for (let i = 0; i < mathTextSymbols.length; i++) {
+    const ch = mathTextSymbols.charAt(i);
     defineSymbol(math, main, textord, ch, ch);
 }
 
 // All of these are textords in text mode
-var textSymbols = "0123456789`!@*()-=+[]'\";:?/.,";
-for (i = 0; i < textSymbols.length; i++) {
-    ch = textSymbols.charAt(i);
+const textSymbols = "0123456789!@*()-=+[]<>|\";:?/.,";
+for (let i = 0; i < textSymbols.length; i++) {
+    const ch = textSymbols.charAt(i);
     defineSymbol(text, main, textord, ch, ch);
 }
 
 // All of these are textords in text mode, and mathords in math mode
-var letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZабвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-for (i = 0; i < letters.length; i++) {
-    ch = letters.charAt(i);
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+for (let i = 0; i < letters.length; i++) {
+    const ch = letters.charAt(i);
     defineSymbol(math, main, mathord, ch, ch);
     defineSymbol(text, main, textord, ch, ch);
 }
+
+// Latin-1 letters
+for (let i = 0x00C0; i <= 0x00D6; i++) {
+    const ch = String.fromCharCode(i);
+    defineSymbol(math, main, mathord, ch, ch);
+    defineSymbol(text, main, textord, ch, ch);
+}
+
+for (let i = 0x00D8; i <= 0x00F6; i++) {
+    const ch = String.fromCharCode(i);
+    defineSymbol(math, main, mathord, ch, ch);
+    defineSymbol(text, main, textord, ch, ch);
+}
+
+for (let i = 0x00F8; i <= 0x00FF; i++) {
+    const ch = String.fromCharCode(i);
+    defineSymbol(math, main, mathord, ch, ch);
+    defineSymbol(text, main, textord, ch, ch);
+}
+
+// Cyrillic
+for (let i = 0x0410; i <= 0x044F; i++) {
+    const ch = String.fromCharCode(i);
+    defineSymbol(text, main, textord, ch, ch);
+}
+
+// Unicode versions of existing characters
+defineSymbol(text, main, textord, "\u2013", "–");
+defineSymbol(text, main, textord, "\u2014", "—");
+defineSymbol(text, main, textord, "\u2018", "‘");
+defineSymbol(text, main, textord, "\u2019", "’");
+defineSymbol(text, main, textord, "\u201c", "“");
+defineSymbol(text, main, textord, "\u201d", "”");
