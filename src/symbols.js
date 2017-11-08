@@ -717,6 +717,7 @@ for (let i = 0x00F8; i <= 0x00FF; i++) {
 // Cyrillic
 for (let i = 0x0410; i <= 0x044F; i++) {
     const ch = String.fromCharCode(i);
+    defineSymbol(math, main, mathord, ch, ch); // мой хак
     defineSymbol(text, main, textord, ch, ch);
 }
 
